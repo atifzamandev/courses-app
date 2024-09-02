@@ -7,6 +7,7 @@ import { useSelectedCourse } from '../../contexts/useSelectedCourse'
 import { postStudentInfo } from '../../api/studentInfo'
 
 const ContactInfoForm = () => {
+  const { selectedCourse } = useSelectedCourse()
   const [submitInfo, setSubmitInfo] = useState<SubmitInfoProp>({
     fullName: '',
     emailAddress: '',
@@ -15,11 +16,24 @@ const ContactInfoForm = () => {
     message: '',
   })
 
-  const { selectedCourse } = useSelectedCourse()
+  const [, setSubmitInfoLS] = useLocalStorage<SubmitInfoProp | null>('studentInfo', null)
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target
+    setSubmitInfo({
+      ...submitInfo,
+      selectedCourse,
+      [name]: value,
+    })
+  }
 
   const mutation = useMutation({
     mutationFn: (studentInfo: SubmitInfoProp) =>
-      postStudentInfo({ ...studentInfo, contactedDate: new Date().toISOString() }),
+      postStudentInfo({
+        ...studentInfo,
+        selectedCourse,
+        contactedDate: new Date().toISOString(),
+      }),
     onSuccess: () => {
       // Here call invalidateQueries to refetch but we have no get request for this API so just conolse success message.
       console.log('Form successfully submitted')
@@ -28,16 +42,6 @@ const ContactInfoForm = () => {
       console.error('Error submitting form:', error)
     },
   })
-
-  const [, setSubmitInfoLS] = useLocalStorage<SubmitInfoProp | null>('studentInfo', null)
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target
-    setSubmitInfo({
-      ...submitInfo,
-      [name]: value,
-    })
-  }
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -85,7 +89,7 @@ const ContactInfoForm = () => {
       <TextField
         label='Selected Course'
         name='selectedCourse'
-        value={selectedCourse ? selectedCourse : 'No Course Selected'}
+        value={selectedCourse || 'No Course Selected'}
         onChange={handleInputChange}
       />
 

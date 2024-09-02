@@ -13,7 +13,7 @@ export interface SubmitInfoProp {
   fullName: string
   emailAddress: string
   phoneNumber: string
-  selectedCourse?: string
+  selectedCourse?: string | null
   message?: string
   contactedDate?: string
 }
